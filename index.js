@@ -3,6 +3,7 @@ const app= express();
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 const port = process.env.PORT || 5000;
 
 
@@ -27,8 +28,9 @@ async function run() {
   try {
 
     const userCollection = client.db('asset-management').collection('users')
+    const hrAssetCollection = client.db('asset-management').collection('hrasset')
 
-
+// user create
     app.post('/users', async (req,res)=>{
         const user = req.body;
         // const query ={email: email}
@@ -39,6 +41,34 @@ async function run() {
         const result = await userCollection.insertOne(user)
         res.send(result)
     })
+
+    // added product by admin
+    // TODO: jwt empliment
+    app.post('/addProduct', async(req,res)=>{
+        const product = req.body;
+        const result = await hrAssetCollection.insertOne(product)
+        res.send(result)
+    })
+
+// payments by stripe
+// app.post('/create-payment-intent', async(req,res)=>{
+//     const {package}= req.body;
+//     console.log(package)
+//     const price = parseFloat(package)
+
+//     const paymentIntent = await stripe.paymentIntents.create({
+//        amount: price,
+//        currency: 'usd',
+//        payment_method_types: [
+//            "card"
+//          ],
+//     })
+
+//     res.send({
+//         clientSecret: paymentIntent.client_secret
+//     })
+// })
+
 
 
 
