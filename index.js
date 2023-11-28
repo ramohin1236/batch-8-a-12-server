@@ -30,6 +30,7 @@ async function run() {
 
     const userCollection = client.db('asset-management').collection('users')
     const hrAssetCollection = client.db('asset-management').collection('hrasset')
+    const requestCollection = client.db('asset-management').collection('request')
 
 
     // JWT RELATED
@@ -69,17 +70,32 @@ const verifyToken =(req,res,next)=>{
 }
 
 
+// request-------------------------
 
+ app.post('/request',verifyToken, async(req,res)=>{
+         const request = req.body;
+        const result = await requestCollection.insertOne(request)
+        res.send(result)
+ })
+
+ app.get('/request', async(req,res)=>{
+       
+    const email = req.query.email;
+    const query ={email: email}
+   const result = await requestCollection.find(query).toArray()
+   res.send(result)
+})
 
 
 // user create
     app.post('/users', async (req,res)=>{
         const user = req.body;
-        // const query ={email: email}
-        // const existingUser = await userCollection.findOne(query)
-        // if(existingUser){
-        //     return res.send({message: 'User already exists', insertedId: null})
-        // }
+
+        const query = {email: user.email}
+        const existingUser = await userCollection.findOne(query)
+        if(existingUser){
+            return res.send({message: 'User already exists', insertedId: null})
+        }
         const result = await userCollection.insertOne(user)
         res.send(result)
     })
@@ -92,6 +108,12 @@ const verifyToken =(req,res,next)=>{
        res.send(result)
     })
 
+    // find product
+    app.get('/hrasset', async(req,res)=>{
+    
+       const result = await hrAssetCollection.find().toArray()
+       res.send(result)
+    })
     // ------------------------
     //  admin
     // ----------------
