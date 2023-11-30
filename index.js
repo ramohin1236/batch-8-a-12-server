@@ -33,6 +33,7 @@ async function run() {
     const requestCollection = client.db('asset-management').collection('request')
     const paymentCollection = client.db('asset-management').collection('payment')
     const employeeTeamCollection = client.db('asset-management').collection('team')
+    const employeeCustomeCollection = client.db('asset-management').collection('custome')
 
 
     // JWT RELATED
@@ -74,13 +75,20 @@ const verifyToken =(req,res,next)=>{
 
 // request-------------------------
 
+
+app.post('/custom',verifyToken, async(req,res)=>{
+    const product = req.body;
+    const result = await hrAssetCollection.insertOne(product)
+    res.send(result)
+})
+
  app.post('/request',verifyToken, async(req,res)=>{
          const request = req.body;
         const result = await requestCollection.insertOne(request)
         res.send(result)
  })
 
- app.get('/request',verifyToken, async(req,res)=>{
+ app.get('/request', async(req,res)=>{
        
     const email = req.query.email;
     const query ={email: email}
@@ -234,6 +242,14 @@ app.patch('/users/approved/:id',verifyToken, async(req,res)=>{
     //       res.status(500).json({ error: 'Server error' });
     //     }
     //   });
+    app.get('/employee-team',verifyToken,async(req,res)=>{
+        // console.log(req.headers)
+
+      
+     
+        const result = await employeeTeamCollection.find().toArray()
+        res.send(result)
+    })
 
     app.get('/employee-team',verifyToken,verifyAdmin,async(req,res)=>{
         // console.log(req.headers)
