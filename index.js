@@ -78,7 +78,12 @@ const verifyToken =(req,res,next)=>{
 
 app.post('/custom',verifyToken, async(req,res)=>{
     const product = req.body;
-    const result = await hrAssetCollection.insertOne(product)
+    const result = await employeeCustomeCollection.insertOne(product)
+    res.send(result)
+})
+app.get('/custom',verifyToken,verifyAdmin, async(req,res)=>{
+   
+    const result = await employeeCustomeCollection.find().toArray()
     res.send(result)
 })
 
@@ -87,6 +92,7 @@ app.post('/custom',verifyToken, async(req,res)=>{
         const result = await requestCollection.insertOne(request)
         res.send(result)
  })
+
 
  app.get('/request', async(req,res)=>{
        
