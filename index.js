@@ -32,6 +32,7 @@ async function run() {
     const hrAssetCollection = client.db('asset-management').collection('hrasset')
     const requestCollection = client.db('asset-management').collection('request')
     const paymentCollection = client.db('asset-management').collection('payment')
+    const employeeTeamCollection = client.db('asset-management').collection('team')
 
 
     // JWT RELATED
@@ -86,6 +87,10 @@ const verifyToken =(req,res,next)=>{
    const result = await requestCollection.find(query).toArray()
    res.send(result)
 })
+ app.get('/requests',verifyToken,verifyAdmin, async(req,res)=>{
+     const result = await requestCollection.find().toArray()
+   res.send(result)
+})
 // add employee
 app.get('/addEmployee',verifyToken,verifyAdmin, async (req, res) => {
     const email = req.query.email; 
@@ -109,19 +114,7 @@ app.delete("/deleteEmployee/:id",verifyToken,verifyAdmin, async(req,res)=>{
 
 app.get('/myasset',verifyToken, async(req,res)=>{
  
-//     let item={}
-// let sortObj ={}
-//     const type = req.query.type
-//     console.log(type)
-//   if(type){
-//     item.type= type
-//   }
 
-// const sortField = req.query.sortField
-// const sortOrder = req.query.sortOrder
-// if(sortField && sortOrder){
-//     sortObj[sortField]=sortOrder
-// }
     const email = req.query.email;
     const query ={from: email}
     // console.log("query", query)
@@ -200,9 +193,58 @@ app.patch('/users/approved/:id',verifyToken, async(req,res)=>{
         const result = await hrAssetCollection.insertOne(product)
         res.send(result)
     })
-    // ------------------
+    // -------make team members-----------
+    app.post('/employee-team',verifyToken,verifyAdmin, async(req,res)=>{
+        const employee = req.body;
+        const employeeTeam = await employeeTeamCollection.insertOne(employee);
+        console.log(employeeTeam)
+        res.send(employeeTeam)
+    })
 
-    
+    // --------------------------------------------------------------------------
+
+    // app.get('/employee-team', verifyToken, verifyAdmin, async (req, res) => {
+    //     try {
+    //       const email = req.query.email;
+    //       if (!email) {
+    //         return res.status(400).json({ error: 'Email is required' });
+    //       }
+      
+    //       const query = { email: email };
+    //     //   const userCollection = client.db('asset-management').collection('users');
+    //       const user = await userCollection.find(query).toArray();
+      
+    //       let teamSize = 0;
+    //       if (user && user.package === 5) {
+    //         teamSize = 5;
+    //       } else if (user && user.package === 8) {
+    //         teamSize = 10;
+    //       } else if (user && user.package === 15) {
+    //         teamSize = 20;
+    //       } else {
+    //         return res.status(400).json({ error: 'Invalid package amount' });
+    //       }
+      
+    //     //   const employeeTeamCollection = client.db('asset-management').collection('team');
+    //       const teamMembers = await employeeTeamCollection.find(query).toArray();
+      
+    //       // Adjust the response as needed, sending the team members or their count
+    //       res.send({ teamMembers: teamMembers.length, teamSize });
+    //     } catch (error) {
+    //       res.status(500).json({ error: 'Server error' });
+    //     }
+    //   });
+
+    app.get('/employee-team',verifyToken,verifyAdmin,async(req,res)=>{
+        // console.log(req.headers)
+
+        const email = req.query.email;
+        const query = {email: email}
+     
+        const result = await employeeTeamCollection.find(query).toArray()
+        res.send(result)
+    })
+//   ---------------------------------------------------------------  // 
     app.get('/addProduct',verifyToken,verifyAdmin,async(req,res)=>{
         // console.log(req.headers)
 
@@ -240,9 +282,9 @@ app.post('/create-payment-intent', async(req,res)=>{
 
 app.post('/paymentns',verifyToken,verifyAdmin, async(req,res)=>{
     const payment = req.body;
-    const paymentResult = await paymentCollection.insertOne(payment);
-    console.log(paymentResult)
-    res.send(paymentResult)
+    const employeeTeam = await paymentCollection.insertOne(payment);
+    console.log(employeeTeam)
+    res.send(employeeTeam)
 })
 app.get('/paymentns', async(req,res)=>{
     const email = req.query.email;
